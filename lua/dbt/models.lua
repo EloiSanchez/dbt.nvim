@@ -12,7 +12,7 @@ models.models = scan.scan_dir('models', { search_pattern = '.*.sql' })
 --- @return string | nil
 models.find_model_path = function(self, name)
   for _, path in pairs(self.models) do
-    if path:find(name) then
+    if path:find('/' .. name .. '.sql') then
       return path
     end
   end

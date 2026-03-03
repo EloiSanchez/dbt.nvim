@@ -11,10 +11,12 @@ M.go_to_definition = function()
   -- If match is found in line, find path and jump to it
   if match then
     local model_path = models:find_model_path(match)
-    vim.api.nvim_command(('edit %s'):format(model_path))
-  else
-    vim.notify('No model reference found.')
+    if model_path then
+      vim.api.nvim_command(('edit %s'):format(model_path))
+      return
+    end
   end
+  vim.notify('No model reference found.')
 end
 
 return M
