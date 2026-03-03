@@ -2,7 +2,7 @@
 
 > [!WARNING]
 > This repository is not ready for production and, for now, is just a learning project for myself.
-> See:
+> See (although they all seem stale and unfinished):
 >
 > - [`cfmeyers/dbt.nvim`](https://github.com/cfmeyers/dbt.nvim): Has a few more features
 > - [`alhankeser/dbt-nvim`](https://github.com/alhankeser/dbt-nvim): Implements the show command
