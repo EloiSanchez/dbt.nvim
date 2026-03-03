@@ -1,0 +1,1 @@
+--- @alias result table<string, any>
