@@ -1,56 +1,97 @@
+local classes = require('dbt.classes')
+local dbtCommand = classes.dbtCommand
+local Display = require('dbt.display')
+
 local executor = {}
-
---- @class dbtCommand
---- @field command string
---- @field args string[]
-local dbtCommand = {}
-dbtCommand.__index = dbtCommand
-
---- Create new dbt command
---- @param command string
---- @param args string[]
---- @return dbtCommand
-dbtCommand.new = function(command, args)
-  local self = setmetatable({}, dbtCommand)
-  self.command = command
-  self.args = args
-
-  return self
-end
-
---- Add new arguments to the dbt command
---- @param self dbtCommand
---- @param args string[]
-dbtCommand.add_args = function(self, args)
-  for i = 1, #args do
-    table.insert(self.args, args[i])
-  end
-end
-
-dbtCommand.execute = function(self)
-  local cmd_str = ('dbt %s %s'):format(self.command, table.concat(self.args, ' '))
-  local file_handle = assert(io.popen(cmd_str))
-
-  if file_handle then
-    return file_handle:read('*a')
-  end
-end
 
 --- Execute dbt show command. Accepts range with format as passed as command_args from
 --- vim.api.nvim_create_user_command
 --- @param opts vim.api.keyset.create_user_command.command_args
---- @return result[]
 executor.show = function(opts)
-  local query_lines = vim.api.nvim_buf_get_lines(0, opts.line1 - 1, opts.line2, true)
+  ---@param sys_completed vim.SystemCompleted
+  local function parse_show_results(sys_completed)
+    local success, output = pcall(vim.json.decode, sys_completed.stdout)
 
+    --- @type result[]
+    local results
+
+    if success then
+      results = output['show']
+    else
+      return vim.split(sys_completed.stdout, '\n')
+    end
+
+    -- PARSE RESULTS
+
+    -- If results is empty then exit
+    if #results == 0 then
+      vim.notify('No data returned from show command', vim.log.levels.WARN)
+      return { 'No data returned from show command' }
+    end
+
+    -- Get table with unique columns, which will also store the max length
+    -- found required to print the column
+    local columns = {}
+
+    local _, first_row = next(results, nil)
+    --- @diagnostic disable-next-line: param-type-mismatch
+    for col, _ in pairs(first_row) do
+      columns[col] = string.len(col)
+    end
+
+    -- Go over all values and store their length if its the largest value found
+    for _, result in pairs(results) do
+      for col, val in pairs(result) do
+        local val_len = string.len(tostring(val))
+
+        if val_len > columns[col] then
+          columns[col] = val_len
+        end
+      end
+    end
+
+    -- Start string formatting to display table. Start with header and separator (split)
+    local header = {}
+    local split = {}
+    for col, len in pairs(columns) do
+      table.insert(header, string.format(' %-' .. len .. 's ', col))
+      table.insert(split, string.format(' %-' .. len .. 's ', string.rep('-', len)))
+    end
+
+    local string_display =
+      { '|' .. table.concat(header, '|') .. '|', '|' .. table.concat(split, '|') .. '|' }
+
+    -- For each row of results, format a new string line
+    for _, result in pairs(results) do
+      local row = {}
+      for col, len in pairs(columns) do
+        table.insert(row, string.format(' %-' .. len .. 's ', result[col]))
+      end
+      table.insert(string_display, '|' .. table.concat(row, '|') .. '|')
+    end
+
+    return string_display
+  end
+
+  -- Get query lines from current buffer according to selection passed by user command opts
+  local query_lines = vim.api.nvim_buf_get_lines(0, opts.line1 - 1, opts.line2, true)
   local query = table.concat(query_lines, '\n')
 
-  local dbt_show =
-    dbtCommand.new('show', { '--quiet', '--inline', '"' .. query .. '"', '--output', 'json' })
+  -- Create placeholder text
+  local placeholder = {
+    '-- Executing show command...',
+    '',
+  }
+  vim.list_extend(placeholder, query_lines)
 
-  local output = vim.fn.json_decode(dbt_show:execute())['show']
+  -- Open new results window with placeholder text
+  local display = Display.new()
+  display:open_results_window(placeholder, 'sql')
 
-  return output
+  -- Create dbt command and execute it async. Results are parsed and sent to display for writing to buffer
+  dbtCommand.new('show', { '--quiet', '--inline', query, '--output', 'json' }):execute(function(obj)
+    display:write_to_results(parse_show_results(obj), 'markdown')
+  end)
 end
 
 return executor

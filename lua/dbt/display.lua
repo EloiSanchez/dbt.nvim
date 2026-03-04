@@ -1,67 +1,77 @@
 local display = {}
 
---- @param results result[]
-display.show_table = function(results)
-  -- If results is empty then exit
-  if #results == 0 then
-    vim.notify('No data returned from show command', vim.log.levels.WARN)
-    return
+display._instance = nil
+
+--- @class Display
+--- @field _results_buffer integer | nil
+--- @field _results_window integer | nil
+local Display = {}
+Display.__index = Display
+
+Display.new = function()
+  if not display._instance then
+    local self = setmetatable({}, Display)
+
+    display._instance = self
   end
 
-  -- Get table with unique columns, which will also store the max length
-  -- found required to print the column
-  local columns = {}
-
-  local _, first_row = next(results, nil)
-  --- @diagnostic disable-next-line: param-type-mismatch
-  for k, _ in pairs(first_row) do
-    columns[k] = string.len(k)
-  end
-
-  -- Go over all values and store their length if its the largest value found
-  for _, result in pairs(results) do
-    for col, val in pairs(result) do
-      local val_len = string.len(tostring(val))
-
-      if val_len > columns[col] then
-        columns[col] = val_len
-      end
-    end
-  end
-
-  -- Start string formatting to display table. Start with header and separator (split)
-  local header = {}
-  local split = {}
-  for col, len in pairs(columns) do
-    table.insert(header, string.format(' %-' .. len .. 's ', col))
-    table.insert(split, string.format(' %-' .. len .. 's ', string.rep('-', len)))
-  end
-
-  local string_display =
-    { '|' .. table.concat(header, '|') .. '|', '|' .. table.concat(split, '|') .. '|' }
-
-  -- For each row of results, format a new string line
-  for _, result in pairs(results) do
-    local row = {}
-    for col, len in pairs(columns) do
-      table.insert(row, string.format(' %-' .. len .. 's ', result[col]))
-    end
-    table.insert(string_display, '|' .. table.concat(row, '|') .. '|')
-  end
-
-  -- Create buffer
-  local buf = vim.api.nvim_create_buf(true, true)
-  vim.bo[buf].filetype = 'markdown'
-
-  -- Add lines to buffer
-  vim.api.nvim_buf_set_lines(buf, 0, -1, false, string_display)
-
-  -- Keymap to exit and avoid user modifying it
-  vim.api.nvim_buf_set_keymap(buf, 'n', 'q', ':q', { desc = 'dbt - Close results window' })
-  vim.bo[buf].modifiable = false
-
-  -- Create and open window below current window
-  vim.api.nvim_open_win(buf, false, { split = 'below', height = math.floor(vim.o.lines * 0.3) })
+  return display._instance
 end
 
-return display
+Display.results_buffer = function(self, filetype)
+  if not self._results_buffer then
+    -- Create buffer
+    self._results_buffer = vim.api.nvim_create_buf(false, true)
+    vim.api.nvim_buf_set_name(self._results_buffer, 'dbt show results')
+    vim.bo[self._results_buffer].filetype = filetype or 'markdown'
+
+    -- Keymap to exit and avoid user modifying it
+    vim.api.nvim_buf_set_keymap(
+      self._results_buffer,
+      'n',
+      'q',
+      ':q<CR>',
+      { desc = 'dbt - Close results window' }
+    )
+    vim.bo[self._results_buffer].modifiable = false
+  end
+
+  return self._results_buffer or error('Results buffer not set')
+end
+
+Display.results_window = function(self)
+  local windows = vim.api.nvim_list_wins()
+
+  if not (self._results_window and vim.list_contains(windows, self._results_window)) then
+    -- Create and open window below current window
+    self._results_window = vim.api.nvim_open_win(
+      self:results_buffer(),
+      false,
+      { split = 'below', height = math.floor(vim.o.lines * 0.3) }
+    )
+  end
+  return self._results_window or error('Error obtaining results window')
+end
+
+Display.open_results_window = function(self, lines, filetype)
+  local results_buffer = self:results_buffer()
+
+  vim.bo[results_buffer].modifiable = true
+
+  if filetype then
+    vim.bo[results_buffer].filetype = filetype
+  end
+
+  if lines then
+    vim.api.nvim_buf_set_lines(results_buffer, 0, -1, false, lines)
+  end
+  vim.bo[results_buffer].modifiable = false
+
+  return self:results_window()
+end
+
+Display.write_to_results = function(self, lines, filetype)
+  self:open_results_window(lines, filetype)
+end
+
+return Display

@@ -25,7 +25,7 @@ As a usual dbt-core user, this is a non-extensive list of features I would like 
   - [ ] Test
   - [ ] Build
   - [ ] Compile
-  - [x] Show (would be nice to implement async query + needs refactor (now its just a plain script))
+  - [x] Show (Async implemented)
 - [ ] Show compiled code
 - [ ] Show execution code
 
