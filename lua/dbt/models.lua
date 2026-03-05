@@ -4,7 +4,7 @@ local scan = require('plenary.scandir')
 local models = {}
 
 --- @type string[]
-models.models = scan.scan_dir('models', { search_pattern = '.*.sql' })
+models.models = scan.scan_dir('models', { search_pattern = '.*.sql', silent = true })
 
 --- Returns path of a model if found, else nil.
 --- @param self Models

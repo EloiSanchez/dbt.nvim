@@ -12,12 +12,16 @@ vim.api.nvim_create_autocmd({ 'BufAdd', 'VimEnter' }, {
       ev.buf,
       'DbtGoToDefinition',
       navigation.go_to_definition,
-      { nargs = '?' }
+      { nargs = '?', desc = { 'Open buffer of model reference in current line' } }
     )
 
     -- dbt show command
     vim.api.nvim_buf_create_user_command(ev.buf, 'DbtShow', function(opts)
       executor.show(opts)
-    end, { nargs = '?', range = '%' })
+    end, {
+      nargs = '?',
+      range = '%',
+      desc = { 'Execute dbt show command. Requires `dbt-core>=1.9.0`' },
+    })
   end,
 })
