@@ -94,4 +94,26 @@ executor.show = function(opts)
   end)
 end
 
+--- Generate model yaml and open in buffer
+--- @param opts vim.api.keyset.create_user_command.command_args
+executor.generate_model_yaml = function(opts)
+  local buf = vim.api.nvim_get_current_buf()
+  local buf_name = vim.api.nvim_buf_get_name(buf)
+  local display = Display.new()
+
+  local path = require('plenary.path')
+  local buf_path = path.new(buf_name)
+  local splitted = buf_path:_split(buf_path._sep)
+  local base_name = string.match(splitted[#splitted], '(.*)%psql')
+
+  local yaml_buffer = display.open_buffer_in_current_window(0, { '# Loading results' }, 'yaml')
+  dbtCommand
+    .new(
+      'run-operation',
+      { '--quiet', 'generate_model_yaml', '--args', ('{"model_names": ["%s"]}'):format(base_name) }
+    )
+    :execute(function(obj)
+      display.write_out_to_buffer(yaml_buffer, obj.stdout, obj.stderr)
+    end)
+end
 return executor

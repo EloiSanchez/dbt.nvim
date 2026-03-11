@@ -8,6 +8,7 @@ display._instance = nil
 local Display = {}
 Display.__index = Display
 
+-- Singleton
 Display.new = function()
   if not display._instance then
     local self = setmetatable({}, Display)
@@ -72,6 +73,55 @@ end
 
 Display.write_to_results = function(self, lines, filetype)
   self:open_results_window(lines, filetype)
+end
+
+Display.open_buffer_in_current_window = function(buffer, lines, filetype)
+  if not buffer or buffer == 0 then
+    buffer = vim.api.nvim_create_buf(false, true)
+  end
+
+  if lines then
+    vim.api.nvim_buf_set_lines(buffer, 0, -1, false, lines)
+  end
+
+  if filetype then
+    vim.bo[buffer].filetype = filetype
+  end
+
+  -- Floating
+  -- local width = math.floor(vim.o.columns * 0.6)
+  -- local height = math.floor(vim.o.lines * 0.9)
+  -- local row = (vim.o.columns - width) - 1
+  -- local col = (vim.o.columns - height) - 1
+  -- -- local win = vim.wo[vim.api.nvim_get_current_win()]
+  -- vim.print({ width = width, height = height, row = row, col = col })
+  -- vim.api.nvim_open_win(buffer, true, {
+  --   relative = 'win',
+  --   row = 2,
+  --   col = 3,
+  --   width = 5,
+  --   height = 7,
+  --   anchor = 'NW',
+  --   border = { '╔', '═', '╗', '║', '╝', '═', '╚', '║' },
+  -- })
+
+  -- Not floating
+  vim.api.nvim_win_set_buf(0, buffer)
+  return buffer
+end
+
+Display.write_out_to_buffer = function(buffer, stdout, stderr, filetype)
+  vim.api.nvim_buf_set_lines(
+    buffer,
+    0,
+    -1,
+    false,
+    vim.list_extend(vim.split(stdout, '\n'), vim.split(stderr, '\n'))
+  )
+
+  if filetype then
+    vim.bo[buffer].filetype = filetype
+  end
 end
 
 return Display
