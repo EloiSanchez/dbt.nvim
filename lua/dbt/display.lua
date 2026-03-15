@@ -1,3 +1,7 @@
+-- TODO: Got to think about how to organize this in the most sensible way
+-- possible. Now it is just a collection of functions that handle buffers
+-- and windows
+
 local display = {}
 
 display._instance = nil
@@ -5,6 +9,7 @@ display._instance = nil
 --- @class Display
 --- @field _results_buffer integer | nil
 --- @field _results_window integer | nil
+--- @field _scratch_buffer integer | nil
 local Display = {}
 Display.__index = Display
 
@@ -38,6 +43,13 @@ Display.results_buffer = function(self, filetype)
   end
 
   return self._results_buffer or error('Results buffer not set')
+end
+
+Display.get_scratch_buffer = function(self)
+  if not self._scratch_buffer then
+    self._scratch_buffer = vim.api.nvim_create_buf(false, true)
+  end
+  return self._scratch_buffer
 end
 
 Display.results_window = function(self)
@@ -75,9 +87,21 @@ Display.write_to_results = function(self, lines, filetype)
   self:open_results_window(lines, filetype)
 end
 
-Display.open_buffer_in_current_window = function(buffer, lines, filetype)
+Display.open_buffer_in_current_window = function(self, buffer, lines, filetype, path)
+  local listed = false
+  local scratch = true
+  if path then
+    listed = not listed
+    scratch = not scratch
+  end
+
+  if path then
+    buffer = vim.api.nvim_create_buf(true, false)
+    vim.api.nvim_buf_set_name(buffer, path)
+  end
+
   if not buffer or buffer == 0 then
-    buffer = vim.api.nvim_create_buf(false, true)
+    buffer = self:get_scratch_buffer()
   end
 
   if lines then
@@ -87,23 +111,6 @@ Display.open_buffer_in_current_window = function(buffer, lines, filetype)
   if filetype then
     vim.bo[buffer].filetype = filetype
   end
-
-  -- Floating
-  -- local width = math.floor(vim.o.columns * 0.6)
-  -- local height = math.floor(vim.o.lines * 0.9)
-  -- local row = (vim.o.columns - width) - 1
-  -- local col = (vim.o.columns - height) - 1
-  -- -- local win = vim.wo[vim.api.nvim_get_current_win()]
-  -- vim.print({ width = width, height = height, row = row, col = col })
-  -- vim.api.nvim_open_win(buffer, true, {
-  --   relative = 'win',
-  --   row = 2,
-  --   col = 3,
-  --   width = 5,
-  --   height = 7,
-  --   anchor = 'NW',
-  --   border = { '╔', '═', '╗', '║', '╝', '═', '╚', '║' },
-  -- })
 
   -- Not floating
   vim.api.nvim_win_set_buf(0, buffer)

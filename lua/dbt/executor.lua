@@ -1,6 +1,7 @@
 local classes = require('dbt.classes')
 local dbtCommand = classes.dbtCommand
 local Display = require('dbt.display')
+local Models = require('dbt.models')
 
 local executor = {}
 
@@ -95,18 +96,35 @@ executor.show = function(opts)
 end
 
 --- Generate model yaml and open in buffer
---- @param opts vim.api.keyset.create_user_command.command_args
-executor.generate_model_yaml = function(opts)
-  local buf = vim.api.nvim_get_current_buf()
-  local buf_name = vim.api.nvim_buf_get_name(buf)
+--- @param yaml_save_path string
+executor.generate_model_yaml = function(yaml_save_path)
+  -- Get current buffer information
+  local cur_buf = vim.api.nvim_get_current_buf()
+  local cur_buf_name = vim.api.nvim_buf_get_name(cur_buf)
+
+  -- Find wether configuartion file already exists. If it does, open the file.
+  local Path = require('plenary.path')
+  local buf_path = Path:new(cur_buf_name)
+  local buf_splitted = buf_path:_split(buf_path._sep)
+  local base_name = string.match(buf_splitted[#buf_splitted], '(.*)%psql')
+
+  -- TODO: Currently only finds config file if has format `path/base_model_name.yml`. Needs to also look
+  -- into the yaml files and find if a config exists for that model, then open that file in that specific line
+  local yaml_path = Models:find_yaml_path(base_name)
+  if yaml_path then
+    return vim.api.nvim_command(('edit %s'):format(yaml_path))
+  end
+
+  -- If config file is not found, try to generate it via dbt-codegen library
+
+  -- Open buffer with placeholder information
   local display = Display.new()
+  local yaml_buffer = display:open_buffer_in_current_window(0, {
+    ('# Config file for model %s not found'):format(base_name),
+    '# Generating model yaml with dbt-codegen',
+  }, 'yaml', yaml_save_path)
 
-  local path = require('plenary.path')
-  local buf_path = path.new(buf_name)
-  local splitted = buf_path:_split(buf_path._sep)
-  local base_name = string.match(splitted[#splitted], '(.*)%psql')
-
-  local yaml_buffer = display.open_buffer_in_current_window(0, { '# Loading results' }, 'yaml')
+  -- Execute dbt command async with a writing callback to yaml buffer
   dbtCommand
     .new(
       'run-operation',
