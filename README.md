@@ -1,9 +1,10 @@
 # `dbt.nvim`
 
 > [!WARNING]
-> This repository is not ready for production and, for now, is just a learning project for myself.
-> See (although they all seem stale and unfinished):
+> This repository is not ready for production and, for now, is just a learning project for myself. Check the `Roadmap` section for more information.
+> See other options:
 >
+> - [`gbakes/dbt-forge`](https://github.com/gbakes/dbt-forge): The most recently maintained option I have found
 > - [`cfmeyers/dbt.nvim`](https://github.com/cfmeyers/dbt.nvim): Has a few more features
 > - [`alhankeser/dbt-nvim`](https://github.com/alhankeser/dbt-nvim): Implements the show command
 > - [`3fonov/dbt-nvim`](https://github.com/3fonov/dbt-nvim): Has a few more features
@@ -31,6 +32,9 @@ As a usual dbt-core user, this is a non-extensive list of features I would like 
   - [x] Show (Async implemented) (requires `dbt-core>=1.9.0`)
 - [ ] Show compiled code
 - [ ] Show execution code
+- [x] Generate model config via dbt-codegen
+  - [x] Open model config file if has format `models/.../base_model_name.yml`
+  - [ ] Open model config if found in _any_ config yaml file
 
 ## Notes
 

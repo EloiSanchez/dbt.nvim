@@ -23,5 +23,14 @@ vim.api.nvim_create_autocmd({ 'BufAdd', 'VimEnter' }, {
       range = '%',
       desc = { 'Execute dbt show command. Requires `dbt-core>=1.9.0`' },
     })
+
+    -- dbt generate source yaml
+    vim.api.nvim_buf_create_user_command(ev.buf, 'DbtGenerateModelYaml', function(opts)
+      executor.generate_model_yaml(opts.fargs[1])
+    end, {
+      nargs = '?',
+      desc = { 'Generate model yaml. Requires `dbt-codegen` library' },
+      complete = 'dir',
+    })
   end,
 })

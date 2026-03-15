@@ -1,3 +1,7 @@
+-- TODO: Got to think about how to organize this in the most sensible way
+-- possible. Now it is just a collection of functions that handle buffers
+-- and windows
+
 local display = {}
 
 display._instance = nil
@@ -5,9 +9,11 @@ display._instance = nil
 --- @class Display
 --- @field _results_buffer integer | nil
 --- @field _results_window integer | nil
+--- @field _scratch_buffer integer | nil
 local Display = {}
 Display.__index = Display
 
+-- Singleton
 Display.new = function()
   if not display._instance then
     local self = setmetatable({}, Display)
@@ -37,6 +43,13 @@ Display.results_buffer = function(self, filetype)
   end
 
   return self._results_buffer or error('Results buffer not set')
+end
+
+Display.get_scratch_buffer = function(self)
+  if not self._scratch_buffer then
+    self._scratch_buffer = vim.api.nvim_create_buf(false, true)
+  end
+  return self._scratch_buffer
 end
 
 Display.results_window = function(self)
@@ -72,6 +85,50 @@ end
 
 Display.write_to_results = function(self, lines, filetype)
   self:open_results_window(lines, filetype)
+end
+
+Display.open_buffer_in_current_window = function(self, buffer, lines, filetype, path)
+  local listed = false
+  local scratch = true
+  if path then
+    listed = not listed
+    scratch = not scratch
+  end
+
+  if path then
+    buffer = vim.api.nvim_create_buf(true, false)
+    vim.api.nvim_buf_set_name(buffer, path)
+  end
+
+  if not buffer or buffer == 0 then
+    buffer = self:get_scratch_buffer()
+  end
+
+  if lines then
+    vim.api.nvim_buf_set_lines(buffer, 0, -1, false, lines)
+  end
+
+  if filetype then
+    vim.bo[buffer].filetype = filetype
+  end
+
+  -- Not floating
+  vim.api.nvim_win_set_buf(0, buffer)
+  return buffer
+end
+
+Display.write_out_to_buffer = function(buffer, stdout, stderr, filetype)
+  vim.api.nvim_buf_set_lines(
+    buffer,
+    0,
+    -1,
+    false,
+    vim.list_extend(vim.split(stdout, '\n'), vim.split(stderr, '\n'))
+  )
+
+  if filetype then
+    vim.bo[buffer].filetype = filetype
+  end
 end
 
 return Display
