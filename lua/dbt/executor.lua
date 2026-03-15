@@ -6,8 +6,10 @@ local executor = {}
 
 --- Execute dbt show command. Accepts range with format as passed as command_args from
 --- vim.api.nvim_create_user_command
---- @param opts vim.api.keyset.create_user_command.command_args
-executor.show = function(opts)
+--- @param buffer integer | nil Buffer to read from. If nil or 0 then current buffer is used.
+--- @param line_range_start integer Start line range to send code to dbt show command
+--- @param line_range_end integer End line range to send code to dbt show command
+executor.show = function(buffer, line_range_start, line_range_end)
   ---@param sys_completed vim.SystemCompleted
   local function parse_show_results(sys_completed)
     local success, output = pcall(vim.json.decode, sys_completed.stdout)
@@ -73,8 +75,9 @@ executor.show = function(opts)
     return string_display
   end
 
-  -- Get query lines from current buffer according to selection passed by user command opts
-  local query_lines = vim.api.nvim_buf_get_lines(0, opts.line1 - 1, opts.line2, true)
+  -- Get query from buffer
+  local query_lines =
+    vim.api.nvim_buf_get_lines(buffer or 0, line_range_start - 1, line_range_end, true)
   local query = table.concat(query_lines, '\n')
 
   -- Create placeholder text

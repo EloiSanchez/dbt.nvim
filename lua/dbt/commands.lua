@@ -17,7 +17,7 @@ vim.api.nvim_create_autocmd({ 'BufAdd', 'VimEnter' }, {
 
     -- dbt show command
     vim.api.nvim_buf_create_user_command(ev.buf, 'DbtShow', function(opts)
-      executor.show(opts)
+      executor.show(0, opts.line1, opts.line2)
     end, {
       nargs = '?',
       range = '%',
