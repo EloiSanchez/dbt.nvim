@@ -1,3 +1,5 @@
+local display = require('dbt.display').new()
+
 --- Types
 
 --- @alias result table<string, any>
@@ -62,6 +64,12 @@ dbtCommand.execute = function(self, callback)
     return vim.system(cmd, { text = true }):wait()
   end
 end
+
+-- dbtCommand.execute_in_terminal = function(self)
+--   display:open_terminal_window()
+--   -- vim.api.nvim_command(':15split')
+--   -- vim.api.
+-- end
 
 return {
   dbtCommand = dbtCommand,

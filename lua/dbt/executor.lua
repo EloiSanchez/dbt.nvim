@@ -10,7 +10,7 @@ local executor = {}
 --- @param buffer integer | nil Buffer to read from. If nil or 0 then current buffer is used.
 --- @param line_range_start integer Start line range to send code to dbt show command
 --- @param line_range_end integer End line range to send code to dbt show command
-executor.show = function(buffer, line_range_start, line_range_end)
+executor.dbt_show = function(buffer, line_range_start, line_range_end)
   ---@param sys_completed vim.SystemCompleted
   local function parse_show_results(sys_completed)
     local success, output = pcall(vim.json.decode, sys_completed.stdout)
@@ -136,5 +136,40 @@ executor.generate_model_yaml = function(yaml_save_path)
     :execute(function(obj)
       display.write_out_to_buffer(yaml_buffer, obj.stdout, obj.stderr)
     end)
+end
+
+--- Execute dbt run command
+--- @param model_name string
+--- @param upstream boolean | nil
+--- @param downstream boolean | nil
+-- executor.run = function(model_name, upstream, downstream)
+--   local args = {}
+--   if model_name then
+--     local model_selector = (upstream and '+' or '') .. model_name .. (downstream and '+' or '')
+--     args = { '-s', model_selector }
+--   end
+executor.dbt_run = function(selector)
+  local args = {}
+  if selector and selector ~= '' then
+    vim.print(('in selector %s'):format(selector))
+    args = { '-s', selector }
+  end
+  local dbt_run = dbtCommand.new('run', args)
+  local display = Display.new()
+  local term_win, term_buf, term_chan = display:open_terminal_window()
+  vim.api.nvim_chan_send(term_chan, ('Executing: "%s"\r\n'):format(dbt_run:get_string_command()))
+  vim.system(dbt_run:get_command(), {
+    text = true,
+    stdout = function(_, data)
+      vim.schedule(function()
+        if data then
+          vim.api.nvim_chan_send(term_chan, data)
+        else
+          vim.api.nvim_chan_send(term_chan, '\r\n')
+        end
+        vim.api.nvim_win_set_cursor(term_win, { vim.api.nvim_buf_line_count(term_buf), 0 })
+      end)
+    end,
+  })
 end
 return executor
