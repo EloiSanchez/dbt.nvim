@@ -7,12 +7,12 @@ local display = {}
 display._instance = nil
 
 --- @class Display
---- @field _results_buffer integer | nil
+--- @field buffer integer | nil
 --- @field _results_window integer | nil
---- @field _terminal_buffer integer | nil
 --- @field _terminal_window integer | nil
 --- @field _terminal_channel integer | nil
 --- @field _scratch_buffer integer | nil
+--- @field _buffers table<string, integer>
 local Display = {}
 Display.__index = Display
 
@@ -22,52 +22,29 @@ Display.new = function()
     local self = setmetatable({}, Display)
 
     display._instance = self
+    self._buffers = {}
   end
 
   return display._instance
 end
 
-Display.results_buffer = function(self, filetype)
-  if not self._results_buffer then
+Display.get_buffer = function(self, buffer_id, filetype)
+  local buffer = self._buffers[buffer_id]
+
+  if not buffer then
     -- Create buffer
-    self._results_buffer = vim.api.nvim_create_buf(false, true)
-    vim.api.nvim_buf_set_name(self._results_buffer, 'dbt show results')
-    vim.bo[self._results_buffer].filetype = filetype or 'markdown'
+    buffer = vim.api.nvim_create_buf(false, true)
+    vim.api.nvim_buf_set_name(buffer, ('dbt %s'):format(buffer_id))
+    vim.bo[buffer].filetype = filetype or 'markdown'
 
     -- Keymap to exit and avoid user modifying it
-    vim.api.nvim_buf_set_keymap(
-      self._results_buffer,
-      'n',
-      'q',
-      ':q<CR>',
-      { desc = 'dbt - Close results window' }
-    )
-    vim.bo[self._results_buffer].modifiable = false
+    vim.api.nvim_buf_set_keymap(buffer, 'n', 'q', ':q<CR>', { desc = 'dbt - Close results window' })
+    vim.bo[buffer].modifiable = false
+
+    self._buffers[buffer_id] = buffer
   end
 
-  return self._results_buffer or error('Results buffer not set')
-end
-
-Display.terminal_buffer = function(self)
-  if not self._terminal_buffer then
-    -- Create buffer
-    self._terminal_buffer = vim.api.nvim_create_buf(false, true)
-    vim.api.nvim_buf_set_name(self._terminal_buffer, 'dbt terminal executions')
-    -- vim.bo[self._terminal_buffer].filetype = filetype or 'markdown'
-
-    -- Keymap to exit and avoid user modifying it
-    vim.api.nvim_buf_set_keymap(
-      self._terminal_buffer,
-      'n',
-      'q',
-      ':q<CR>',
-      { desc = 'dbt - Close terminal window' }
-    )
-
-    vim.bo[self._terminal_buffer].modifiable = false
-  end
-
-  return self._terminal_buffer or error('Terminal buffer not set')
+  return buffer
 end
 
 Display.get_scratch_buffer = function(self)
@@ -83,7 +60,7 @@ Display.results_window = function(self)
   if not (self._results_window and vim.list_contains(windows, self._results_window)) then
     -- Create and open window below current window
     self._results_window = vim.api.nvim_open_win(
-      self:results_buffer(),
+      self:get_buffer('show results'),
       false,
       { split = 'below', height = math.floor(vim.o.lines * 0.3) }
     )
@@ -97,23 +74,24 @@ end
 ---@return integer terminal_channel
 Display.terminal_window = function(self)
   local windows = vim.api.nvim_list_wins()
+  local buffer = self:get_buffer('terminal')
 
   if not (self._terminal_window and vim.list_contains(windows, self._terminal_window)) then
     -- Create and open window below current window
     self._terminal_window = vim.api.nvim_open_win(
-      self:terminal_buffer(),
+      self:get_buffer('terminal'),
       false,
       { split = 'below', height = math.floor(vim.o.lines * 0.3) }
     )
   end
   if not self._terminal_channel then
-    self._terminal_channel = vim.api.nvim_open_term(self._terminal_buffer, {})
+    self._terminal_channel = vim.api.nvim_open_term(buffer, {})
   end
-  return self._terminal_window, self._terminal_buffer, self._terminal_channel
+  return self._terminal_window, buffer, self._terminal_channel
 end
 
 Display.open_results_window = function(self, lines, filetype)
-  local results_buffer = self:results_buffer()
+  local results_buffer = self:get_buffer('show results')
 
   vim.bo[results_buffer].modifiable = true
 
@@ -130,7 +108,7 @@ Display.open_results_window = function(self, lines, filetype)
 end
 
 Display.open_terminal_window = function(self, lines, filetype)
-  local terminal_buffer = self:results_buffer()
+  local terminal_buffer = self:get_buffer('terminal')
 
   vim.bo[terminal_buffer].modifiable = true
 

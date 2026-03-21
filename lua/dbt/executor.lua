@@ -139,34 +139,38 @@ executor.generate_model_yaml = function(yaml_save_path)
 end
 
 --- Execute dbt run command
---- @param model_name string
---- @param upstream boolean | nil
---- @param downstream boolean | nil
--- executor.run = function(model_name, upstream, downstream)
---   local args = {}
---   if model_name then
---     local model_selector = (upstream and '+' or '') .. model_name .. (downstream and '+' or '')
---     args = { '-s', model_selector }
---   end
+---@param selector string Selector to pass to dbt run command
 executor.dbt_run = function(selector)
+  -- If selector is not nil add it as an argument when creating dbt command
   local args = {}
   if selector and selector ~= '' then
     vim.print(('in selector %s'):format(selector))
     args = { '-s', selector }
   end
   local dbt_run = dbtCommand.new('run', args)
+
+  -- Create and open terminal window
   local display = Display.new()
   local term_win, term_buf, term_chan = display:open_terminal_window()
-  vim.api.nvim_chan_send(term_chan, ('Executing: "%s"\r\n'):format(dbt_run:get_string_command()))
+
+  -- Send starter text to terminal window
+  vim.api.nvim_chan_send(
+    term_chan,
+    ('============= Executing: "%s" =============\r\n'):format(dbt_run:get_string_command())
+  )
+
+  -- Execute command and pipe stdout to terminal window channel
   vim.system(dbt_run:get_command(), {
     text = true,
     stdout = function(_, data)
       vim.schedule(function()
-        if data then
+        if data then -- Standard output
           vim.api.nvim_chan_send(term_chan, data)
-        else
+        else -- Last line of output
           vim.api.nvim_chan_send(term_chan, '\r\n')
         end
+
+        -- Scroll terminal window to bottom
         vim.api.nvim_win_set_cursor(term_win, { vim.api.nvim_buf_line_count(term_buf), 0 })
       end)
     end,

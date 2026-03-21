@@ -11,7 +11,6 @@ vim.api.nvim_create_autocmd({ 'BufAdd', 'VimEnter' }, {
       vim.api.nvim_buf_create_user_command(ev.buf, name, command, opts)
     end
 
-    -- vim.print(ev)
     -- Go to definition
     create_dbt_ac(
       'DbtGoToDefinition',
@@ -36,16 +35,18 @@ vim.api.nvim_create_autocmd({ 'BufAdd', 'VimEnter' }, {
         -- By default run full dbt project
         local selector = nil
 
-        -- Run dbt with passed selector
-        if opts.args ~= '' and opts.args ~= '%' then
+        -- If args passed, parse to use as selector
+        if opts.args ~= '' then
           selector = opts.args
 
-        -- Run model in current buffer
-        elseif opts.args == '%' then
-          local path = Path:new(vim.api.nvim_buf_get_name(0))
-          local buf_split = path:_split(path._sep)
-          local file_name = buf_split[#buf_split]
-          selector = vim.split(file_name, '%.')[1]
+          -- Subsitute % for model in current buffer
+          if string.match(opts.args, '%%') then
+            local path = Path:new(vim.api.nvim_buf_get_name(0))
+            local buf_split = path:_split(path._sep)
+            local file_name = buf_split[#buf_split]
+            local model_name = vim.split(file_name, '%.')[1]
+            selector = string.gsub(selector, '%%', model_name)
+          end
         end
 
         -- Run dbt with parsed selector
@@ -53,7 +54,7 @@ vim.api.nvim_create_autocmd({ 'BufAdd', 'VimEnter' }, {
       end,
       {
         nargs = '?',
-        desc = { 'Execute dbt show command. Requires `dbt-core>=1.9.0`' },
+        desc = { 'Execute dbt run command.' },
       }
     )
 
