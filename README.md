@@ -25,7 +25,7 @@ As a usual dbt-core user, this is a non-extensive list of features I would like 
 - [ ] Go to references
 - [ ] Show lineage
 - [ ] dbt commands
-  - [ ] Run
+  - [x] Run
   - [ ] Test
   - [ ] Build
   - [ ] Compile
