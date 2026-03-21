@@ -3,6 +3,7 @@ local display = require('dbt.display').new()
 --- Types
 
 --- @alias result table<string, any>
+--- @alias bufferSpec table<string, any>
 
 --- Classes
 

@@ -151,11 +151,11 @@ executor.dbt_run = function(selector)
 
   -- Create and open terminal window
   local display = Display.new()
-  local term_win, term_buf, term_chan = display:open_terminal_window()
+  local term_buf = display:open_terminal_window()
 
   -- Send starter text to terminal window
   vim.api.nvim_chan_send(
-    term_chan,
+    term_buf.chan,
     ('============= Executing: "%s" =============\r\n'):format(dbt_run:get_string_command())
   )
 
@@ -165,13 +165,16 @@ executor.dbt_run = function(selector)
     stdout = function(_, data)
       vim.schedule(function()
         if data then -- Standard output
-          vim.api.nvim_chan_send(term_chan, data)
+          vim.api.nvim_chan_send(term_buf.chan, data)
         else -- Last line of output
-          vim.api.nvim_chan_send(term_chan, '\r\n')
+          vim.api.nvim_chan_send(term_buf.chan, '\r\n')
         end
 
         -- Scroll terminal window to bottom
-        vim.api.nvim_win_set_cursor(term_win, { vim.api.nvim_buf_line_count(term_buf), 0 })
+        vim.api.nvim_win_set_cursor(
+          term_buf.win,
+          { vim.api.nvim_buf_line_count(term_buf.bufnr), 0 }
+        )
       end)
     end,
   })
