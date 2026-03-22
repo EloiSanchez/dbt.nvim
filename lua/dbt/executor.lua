@@ -112,10 +112,7 @@ executor.generate_model_yaml = function(yaml_save_path)
   local cur_buf_name = vim.api.nvim_buf_get_name(cur_buf)
 
   -- Find wether configuartion file already exists. If it does, open the file.
-  local Path = require('plenary.path')
-  local buf_path = Path:new(cur_buf_name)
-  local buf_splitted = buf_path:_split(buf_path._sep)
-  local base_name = string.match(buf_splitted[#buf_splitted], '(.*)%psql')
+  local base_name = Models.extract_base_name(cur_buf_name)
 
   -- TODO: Currently only finds config file if has format `path/base_model_name.yml`. Needs to also look
   -- into the yaml files and find if a config exists for that model, then open that file in that specific line
@@ -146,9 +143,9 @@ end
 
 --- Execute dbt run command
 ---@param selector string Selector to pass to dbt run command
-executor.dbt_run = function(selector)
+executor.dbt_command = function(command, selector)
   -- If selector is not nil add it as an argument when creating dbt command
-  local dbt_run = dbtCommand.new('run', { selector = selector })
+  local dbt_run = dbtCommand.new(command, { selector = selector })
 
   -- Create and open terminal window
   local display = Display.new()

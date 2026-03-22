@@ -41,4 +41,22 @@ models.find_yaml_path = function(self, name)
   vim.print(('Looking for yaml %s'):format(name))
   return self:find_file_path(name, '.yml')
 end
+
+models.extract_base_name = function(path)
+  local Path = require('plenary.path')
+  local buf_path = Path:new(path)
+  local buf_splitted = buf_path:_split(buf_path._sep)
+  return string.match(buf_splitted[#buf_splitted], '(.*)%psql')
+end
+
+models.completion = function(arg_lead)
+  local base_names = {}
+  for _, v in ipairs(models.model_files()) do
+    if vim.startswith(v, arg_lead) then
+      table.insert(base_names, models.extract_base_name(v))
+    end
+  end
+  return base_names
+end
+
 return models

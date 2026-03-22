@@ -1,14 +1,36 @@
 local navigation = require('dbt.navigation')
 local executor = require('dbt.executor')
+local models = require('dbt.models')
 
 vim.api.nvim_create_autocmd({ 'BufAdd', 'VimEnter' }, {
   pattern = '*.sql',
   callback = function(ev)
     vim.notify('Creating autocmds for dbt')
 
+    -- Shorter alias
     local create_dbt_user_command = function(name, command, opts)
       vim.api.nvim_buf_create_user_command(ev.buf, name, command, opts)
     end
+
+    -- For dryness
+    local create_executable_generic_dbt_command = function(name)
+      local mapping =
+        { DbtRun = 'run', DbtBuild = 'build', DbtTest = 'test', DbtCompile = 'compile' }
+      create_dbt_user_command(name, function(opts)
+        executor.dbt_command(mapping[name], opts.args)
+      end, {
+        nargs = '?',
+        desc = { ('Execute dbt %s command'):format(mapping[name]) },
+        complete = models.completion,
+      })
+    end
+
+    -- dbt generic commands
+    create_executable_generic_dbt_command('DbtRun')
+    create_executable_generic_dbt_command('DbtBuild')
+    create_executable_generic_dbt_command('DbtTest')
+    -- TODO: should parse and pretty print output in case a single model is selected
+    create_executable_generic_dbt_command('DbtCompile')
 
     -- Go to definition
     create_dbt_user_command(
@@ -25,26 +47,6 @@ vim.api.nvim_create_autocmd({ 'BufAdd', 'VimEnter' }, {
       range = '%',
       desc = { 'Execute dbt show command. Requires `dbt-core>=1.9.0`' },
     })
-
-    -- dbt run command
-    create_dbt_user_command(
-      'DbtRun',
-      ---@param opts vim.api.keyset.create_user_command.command_args
-      function(opts)
-        -- By default run full dbt project
-        local selector = nil
-
-        -- If args passed, parse to use as selector
-        selector = opts.args
-
-        -- Run dbt with parsed selector
-        executor.dbt_run(selector)
-      end,
-      {
-        nargs = '?',
-        desc = { 'Execute dbt run command.' },
-      }
-    )
 
     -- dbt generate source yaml
     create_dbt_user_command('DbtGenerateModelYaml', function(opts)
