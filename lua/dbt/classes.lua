@@ -37,14 +37,16 @@ end
 
 --- Add new selector to dbt command
 --- @param self dbtCommand
---- @param selector string
+--- @param selector string | nil
 dbtCommand.add_selector = function(self, selector)
-  if string.match(selector, '%%') then
+  if selector and string.match(selector, '%%') then
     local path = Path:new(vim.api.nvim_buf_get_name(0))
     local buf_split = path:_split(path._sep)
     local file_name = buf_split[#buf_split]
     local model_name = vim.split(file_name, '%.')[1]
     selector = string.gsub(self.args.selector, '%%', model_name)
+  elseif selector == '' then
+    selector = nil
   end
   self.args.selector = selector
 end

@@ -96,11 +96,11 @@ executor.dbt_show = function(buffer, line_range_start, line_range_end)
 
   -- Open new results window with placeholder text
   local display = Display.new()
-  display:open_results_window(placeholder, 'sql')
+  display:open_window('show', placeholder, 'sql')
 
   -- Execute dbt command async. Results are parsed and sent to display for writing to buffer
   dbt_command:execute(function(obj)
-    display:write_to_results(parse_show_results(obj), 'markdown')
+    display:write_to_buffer('show', parse_show_results(obj), 'markdown')
   end)
 end
 
@@ -151,9 +151,8 @@ executor.dbt_run = function(selector)
   local dbt_run = dbtCommand.new('run', { selector = selector })
 
   -- Create and open terminal window
-  -- BUG: If run is executed multiple times, a window is open for each run execution
   local display = Display.new()
-  local term_buf = display:open_terminal_window()
+  local term_buf = display:open_window('terminal')
 
   -- Send starter text to terminal window
   vim.api.nvim_chan_send(

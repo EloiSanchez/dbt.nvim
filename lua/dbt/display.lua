@@ -22,8 +22,8 @@ Display.new = function()
 
     display._instance = self
     self._buffers = {
-      show = { name = 'dbt show results', filetype = 'markdown' },
-      terminal = { name = 'dbt executions', filetype = 'markdown' },
+      show = { name = 'dbt show results', filetype = 'markdown', is_terminal = false },
+      terminal = { name = 'dbt executions', filetype = 'markdown', is_terminal = true },
     }
   end
 
@@ -62,27 +62,14 @@ Display.get_scratch_buffer = function(self)
   return self._scratch_buffer
 end
 
-Display.results_window = function(self)
-  local windows = vim.api.nvim_list_wins()
-
-  if not (self._results_window and vim.list_contains(windows, self._results_window)) then
-    -- Create and open window below current window
-    self._results_window = vim.api.nvim_open_win(
-      self:get_buffer('show').bufnr,
-      false,
-      { split = 'below', height = math.floor(vim.o.lines * 0.3) }
-    )
-  end
-  return self._results_window or error('Error obtaining results window')
-end
-
 ---@param self Display
+---@param buffer_id string
 ---@return bufferSpec terminal_buffer
-Display.terminal_window = function(self)
+Display.get_window = function(self, buffer_id)
   local windows = vim.api.nvim_list_wins()
-  local buffer = self:get_buffer('terminal')
+  local buffer = self:get_buffer(buffer_id)
 
-  if not (buffer.win and vim.list_contains(windows, self._terminal_window)) then
+  if not (buffer.win and vim.list_contains(windows, buffer.win)) then
     -- Create and open window below current window
     buffer.win = vim.api.nvim_open_win(
       buffer.bufnr,
@@ -90,14 +77,14 @@ Display.terminal_window = function(self)
       { split = 'below', height = math.floor(vim.o.lines * 0.3) }
     )
   end
-  if not buffer.chan then
+  if buffer.is_terminal and not buffer.chan then
     buffer.chan = vim.api.nvim_open_term(buffer.bufnr, {})
   end
   return buffer
 end
 
-Display.open_results_window = function(self, lines, filetype)
-  local bufnr = self:get_buffer('show').bufnr
+Display.open_window = function(self, buffer_id, lines, filetype, is_append)
+  local bufnr = self:get_buffer(buffer_id).bufnr
 
   vim.bo[bufnr].modifiable = true
 
@@ -106,33 +93,21 @@ Display.open_results_window = function(self, lines, filetype)
   end
 
   if lines then
-    vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, lines)
+    local start_line = 0
+    local last_line = -1
+    if is_append then
+      last_line = vim.api.nvim_buf_line_count(bufnr)
+      start_line = last_line
+    end
+    vim.api.nvim_buf_set_lines(bufnr, start_line, last_line, false, lines)
   end
   vim.bo[bufnr].modifiable = false
 
-  return self:results_window()
+  return self:get_window(buffer_id)
 end
 
-Display.open_terminal_window = function(self, lines, filetype)
-  local bufnr = self:get_buffer('terminal').bufnr
-
-  vim.bo[bufnr].modifiable = true
-
-  if filetype then
-    vim.bo[bufnr].filetype = filetype
-  end
-
-  if lines then
-    local last_line = vim.api.nvim_buf_line_count(bufnr)
-    vim.api.nvim_buf_set_lines(bufnr, last_line, last_line, false, lines)
-  end
-  vim.bo[bufnr].modifiable = false
-
-  return self:terminal_window()
-end
-
-Display.write_to_results = function(self, lines, filetype)
-  self:open_results_window(lines, filetype)
+Display.write_to_buffer = function(self, buffer_id, lines, filetype)
+  self:open_window(buffer_id, lines, filetype)
 end
 
 Display.open_buffer_in_current_window = function(self, buffer, lines, filetype, path)
@@ -177,10 +152,6 @@ Display.write_out_to_buffer = function(buffer, stdout, stderr, filetype)
   if filetype then
     vim.bo[buffer].filetype = filetype
   end
-end
-
-Display.write_to_terminal = function(self, _, data)
-  self:open_terminal_window({ data })
 end
 
 return Display
