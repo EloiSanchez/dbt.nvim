@@ -37,7 +37,6 @@ Display.get_buffer = function(self, buffer_id)
     -- Create buffer
     buffer.bufnr = vim.api.nvim_create_buf(false, true)
     vim.api.nvim_buf_set_name(buffer.bufnr, buffer.name)
-    vim.print(buffer)
     vim.bo[buffer.bufnr].filetype = buffer.filetype
 
     -- Keymap to exit and avoid user modifying it

@@ -81,9 +81,15 @@ executor.dbt_show = function(buffer, line_range_start, line_range_end)
     vim.api.nvim_buf_get_lines(buffer or 0, line_range_start - 1, line_range_end, true)
   local query = table.concat(query_lines, '\n')
 
+  -- Create dbt command
+  local dbt_command = dbtCommand.new(
+    'show',
+    { extra_args = { inline = query, output = 'json' }, flags = { '--quiet' } }
+  )
+
   -- Create placeholder text
   local placeholder = {
-    '-- Executing show command...',
+    '-- Executing "dbt show" command...',
     '',
   }
   vim.list_extend(placeholder, query_lines)
@@ -92,8 +98,8 @@ executor.dbt_show = function(buffer, line_range_start, line_range_end)
   local display = Display.new()
   display:open_results_window(placeholder, 'sql')
 
-  -- Create dbt command and execute it async. Results are parsed and sent to display for writing to buffer
-  dbtCommand.new('show', { '--quiet', '--inline', query, '--output', 'json' }):execute(function(obj)
+  -- Execute dbt command async. Results are parsed and sent to display for writing to buffer
+  dbt_command:execute(function(obj)
     display:write_to_results(parse_show_results(obj), 'markdown')
   end)
 end
@@ -129,10 +135,10 @@ executor.generate_model_yaml = function(yaml_save_path)
 
   -- Execute dbt command async with a writing callback to yaml buffer
   dbtCommand
-    .new(
-      'run-operation',
-      { '--quiet', 'generate_model_yaml', '--args', ('{"model_names": ["%s"]}'):format(base_name) }
-    )
+    .new('run-operation', {
+      extra_args = { args = ('{"model_names": ["%s"]}'):format(base_name) },
+      flags = { '--quiet', 'generate_model_yaml' },
+    })
     :execute(function(obj)
       display.write_out_to_buffer(yaml_buffer, obj.stdout, obj.stderr)
     end)
@@ -142,14 +148,10 @@ end
 ---@param selector string Selector to pass to dbt run command
 executor.dbt_run = function(selector)
   -- If selector is not nil add it as an argument when creating dbt command
-  local args = {}
-  if selector and selector ~= '' then
-    vim.print(('in selector %s'):format(selector))
-    args = { '-s', selector }
-  end
-  local dbt_run = dbtCommand.new('run', args)
+  local dbt_run = dbtCommand.new('run', { selector = selector })
 
   -- Create and open terminal window
+  -- BUG: If run is executed multiple times, a window is open for each run execution
   local display = Display.new()
   local term_buf = display:open_terminal_window()
 
