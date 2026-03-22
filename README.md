@@ -24,14 +24,14 @@ As a usual dbt-core user, this is a non-extensive list of features I would like 
 - [x] Go to definition
 - [ ] Go to references
 - [ ] Show lineage
-- [ ] dbt commands
+- [x] dbt commands
   - [x] Run
-  - [ ] Test
-  - [ ] Build
-  - [ ] Compile
+  - [x] Test
+  - [x] Build
+  - [x] Compile
   - [x] Show (Async implemented) (requires `dbt-core>=1.9.0`)
 - [ ] Show compiled code
-- [ ] Show execution code
+- [ ] Show executed code
 - [x] Generate model config via dbt-codegen
   - [x] Open model config file if has format `models/.../base_model_name.yml`
   - [ ] Open model config if found in _any_ config yaml file
