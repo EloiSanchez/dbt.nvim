@@ -3,6 +3,8 @@ local dbtCommand = classes.dbtCommand
 local Display = require('dbt.display')
 local Models = require('dbt.models')
 
+local display = Display.get_instance()
+
 local executor = {}
 
 --- Execute dbt show command. Accepts range with format as passed as command_args from
@@ -95,7 +97,6 @@ executor.dbt_show = function(buffer, line_range_start, line_range_end)
   vim.list_extend(placeholder, query_lines)
 
   -- Open new results window with placeholder text
-  local display = Display.new()
   display:open_window('show', placeholder, 'sql')
 
   -- Execute dbt command async. Results are parsed and sent to display for writing to buffer
@@ -124,7 +125,6 @@ executor.generate_model_yaml = function(yaml_save_path)
   -- If config file is not found, try to generate it via dbt-codegen library
 
   -- Open buffer with placeholder information
-  local display = Display.new()
   local yaml_buffer = display:open_buffer_in_current_window(0, {
     ('# Config file for model %s not found'):format(base_name),
     '# Generating model yaml with dbt-codegen',
@@ -148,8 +148,7 @@ executor.dbt_command = function(command, selector)
   local dbt_run = dbtCommand.new(command, { selector = selector })
 
   -- Create and open terminal window
-  local display = Display.new()
-  local term_buf = display:open_window('terminal')
+  local term_buf, docked_window = display:open_window('terminal')
 
   -- Send starter text to terminal window
   vim.api.nvim_chan_send(
@@ -170,11 +169,21 @@ executor.dbt_command = function(command, selector)
 
         -- Scroll terminal window to bottom
         vim.api.nvim_win_set_cursor(
-          term_buf.win,
+          docked_window.win,
           { vim.api.nvim_buf_line_count(term_buf.bufnr), 0 }
         )
       end)
     end,
   })
+end
+
+--- Open terminal window
+executor.open_term = function()
+  display:open_window('terminal')
+end
+
+--- Open show results window
+executor.open_show_results = function()
+  display:open_window('show')
 end
 return executor

@@ -32,6 +32,18 @@ vim.api.nvim_create_autocmd({ 'BufAdd', 'VimEnter' }, {
     -- TODO: should parse and pretty print output in case a single model is selected
     create_executable_generic_dbt_command('DbtCompile')
 
+    -- Open windows
+    create_dbt_user_command(
+      'DbtOpenTerm',
+      executor.open_term,
+      { desc = 'Open window with stdout from termial executions of dbt' }
+    )
+    create_dbt_user_command(
+      'DbtOpenShowResults',
+      executor.open_show_results,
+      { desc = 'Open window with results of show command' }
+    )
+
     -- Go to definition
     create_dbt_user_command(
       'DbtGoToDefinition',

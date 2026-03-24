@@ -7,16 +7,14 @@ local display = {}
 display._instance = nil
 
 --- @class Display
---- @field _results_window integer | nil
---- @field _terminal_window integer | nil
---- @field _terminal_channel integer | nil
 --- @field _scratch_buffer integer | nil
+--- @field _docked_window table<string, any>
 --- @field _buffers table<string, bufferSpec>
 local Display = {}
 Display.__index = Display
 
 -- Singleton
-Display.new = function()
+Display.get_instance = function()
   if not display._instance then
     local self = setmetatable({}, Display)
 
@@ -25,6 +23,7 @@ Display.new = function()
       show = { name = 'dbt show results', filetype = 'markdown', is_terminal = false },
       terminal = { name = 'dbt executions', filetype = 'markdown', is_terminal = true },
     }
+    self._docked_window = { buffer_id = nil, win = nil }
   end
 
   return display._instance
@@ -65,22 +64,33 @@ end
 ---@param self Display
 ---@param buffer_id string
 ---@return bufferSpec terminal_buffer
+---@return table<string, any> docked_window
 Display.get_window = function(self, buffer_id)
   local windows = vim.api.nvim_list_wins()
   local buffer = self:get_buffer(buffer_id)
 
-  if not (buffer.win and vim.list_contains(windows, buffer.win)) then
+  -- If window is not open
+  if not (self._docked_window.win and vim.list_contains(windows, self._docked_window.win)) then
     -- Create and open window below current window
-    buffer.win = vim.api.nvim_open_win(
+    self._docked_window.win = vim.api.nvim_open_win(
       buffer.bufnr,
       false,
       { split = 'below', height = math.floor(vim.o.lines * 0.3) }
     )
   end
+
+  -- If buffer is terminal, attach channel
   if buffer.is_terminal and not buffer.chan then
     buffer.chan = vim.api.nvim_open_term(buffer.bufnr, {})
   end
-  return buffer
+
+  -- Ensure correct buffer is attached to window
+  if self._docked_window.buffer_id ~= buffer_id then
+    vim.api.nvim_win_set_buf(self._docked_window.win, buffer.bufnr)
+    self._docked_window.buffer_id = buffer_id
+  end
+
+  return buffer, self._docked_window
 end
 
 Display.open_window = function(self, buffer_id, lines, filetype, is_append)
