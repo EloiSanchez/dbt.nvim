@@ -51,6 +51,13 @@ vim.api.nvim_create_autocmd({ 'BufAdd', 'VimEnter' }, {
       { nargs = '?', desc = { 'Open buffer of model reference in current line' } }
     )
 
+    -- Go to references
+    create_dbt_user_command('DbtGoToReferences', navigation.go_to_references, {
+      desc = {
+        'Open location list with references of current model. If closed, can be reopened with `:lopen`.',
+      },
+    })
+
     -- dbt show command
     create_dbt_user_command('DbtShow', function(opts)
       executor.dbt_show(0, opts.line1, opts.line2)

@@ -22,7 +22,9 @@ Of course, issues, contributions, ideas... are all welcome. Just keep in mind, t
 As a usual dbt-core user, this is a non-extensive list of features I would like to see in a dbt plugin.
 
 - [x] Go to definition
-- [ ] Go to references
+- [x] Go to references
+  - [x] Via location list / quickfix list
+  - [ ] Allows pickers like telescope or snacks
 - [ ] Show lineage
 - [x] dbt commands
   - [x] Run
