@@ -1,6 +1,6 @@
 local M = {}
 
-M.commands = require('dbt.commands')
+M.navigation = require('dbt.navigation')
 
 M.executor = require('dbt.executor')
 
