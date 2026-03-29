@@ -1,14 +1,18 @@
 # `dbt.nvim`
 
-> [!WARNING]
-> This repository is not ready for production and, for now, is just a learning project for myself. Check the `Roadmap` section for more information.
+> [!NOTE]
+> Project started as a learning experience and for self use. At this point, it implements quite a few useful utilities for working with dbt. However, it is has not been tested extensively with different versions, setups, ..., but `dbt-core>=1.9.0` should be enough for everything to work (plus `dbt-codegen`).
+>
+> Issues, contributions, notes, suggestions are all welcome and encouraged!
+
+> [!NOTE]
 > See other options:
 >
 > - [`gbakes/dbt-forge`](https://github.com/gbakes/dbt-forge): The most recently maintained option I have found
-> - [`cfmeyers/dbt.nvim`](https://github.com/cfmeyers/dbt.nvim): Has a few more features
-> - [`alhankeser/dbt-nvim`](https://github.com/alhankeser/dbt-nvim): Implements the show command
-> - [`3fonov/dbt-nvim`](https://github.com/3fonov/dbt-nvim): Has a few more features
-> - [`yusufshalaby/dbt.nvim`](https://github.com/yusufshalaby/dbt.nvim): Has a few more features
+> - [`cfmeyers/dbt.nvim`](https://github.com/cfmeyers/dbt.nvim)
+> - [`alhankeser/dbt-nvim`](https://github.com/alhankeser/dbt-nvim)
+> - [`3fonov/dbt-nvim`](https://github.com/3fonov/dbt-nvim)
+> - [`yusufshalaby/dbt.nvim`](https://github.com/yusufshalaby/dbt.nvim)
 
 > [!INFO]
 > Dbt show command requires `dbt-core>=1.9.0`
@@ -37,6 +41,7 @@ As a usual dbt-core user, this is a non-extensive list of features I would like 
 - [x] Generate model config via dbt-codegen
   - [x] Open model config file if has format `models/.../base_model_name.yml`
   - [ ] Open model config if found in _any_ config yaml file
+- [ ] Provide snippets/autocompletion for double curlies (`{{...}}`) for common commands
 
 ## Notes
 
