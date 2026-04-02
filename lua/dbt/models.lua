@@ -1,4 +1,3 @@
-local scan = require('plenary.scandir')
 local Path = require('plenary.path')
 
 -- TODO: Add functions to find everything (source, models, yamls, macros...). Maybe a class
@@ -14,6 +13,7 @@ models.model_files = function(opts)
 
   -- TODO: Allow parsing projects as defined in dbt_project.yaml, not only
   -- from the hard coded `./models/` directory
+  local scan = require('plenary.scandir')
   return scan.scan_dir('models', extended_opts)
 end
 

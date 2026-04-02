@@ -1,13 +1,15 @@
-local dbt = require('dbt')
-
 -- Autocommand group
-local dbt_augroup = dbt.utils.get_dbt_augroup()
+local utils = require('dbt.utils')
+local dbt_augroup = utils.get_dbt_augroup()
 
 --
 vim.api.nvim_create_autocmd({ 'FileType' }, {
   pattern = 'sql',
   group = dbt_augroup,
   callback = function(ev)
+    local executor = require('dbt.executor')
+    local navigation = require('dbt.navigation')
+
     vim.notify('Creating autocmds for dbt')
 
     -- Shorter alias
@@ -25,11 +27,11 @@ vim.api.nvim_create_autocmd({ 'FileType' }, {
         DbtSeed = 'seed',
       }
       create_dbt_user_command(name, function(opts)
-        dbt.executor.dbt_command(mapping[name], opts.args)
+        executor.dbt_command(mapping[name], opts.args)
       end, {
         nargs = '?',
         desc = { ('Execute dbt %s command'):format(mapping[name]) },
-        complete = dbt.utils.completion,
+        complete = utils.completion,
       })
     end
 
@@ -44,24 +46,24 @@ vim.api.nvim_create_autocmd({ 'FileType' }, {
     -- Open windows
     create_dbt_user_command(
       'DbtOpenTerm',
-      dbt.executor.open_term,
+      executor.open_term,
       { desc = 'Open window with stdout from termial executions of dbt' }
     )
     create_dbt_user_command(
       'DbtOpenShowResults',
-      dbt.executor.open_show_results,
+      executor.open_show_results,
       { desc = 'Open window with results of show command' }
     )
 
     -- Go to definition
     create_dbt_user_command(
       'DbtGoToDefinition',
-      dbt.navigation.go_to_definition,
+      navigation.go_to_definition,
       { nargs = '?', desc = { 'Open buffer of model reference in current line' } }
     )
 
     -- Go to references
-    create_dbt_user_command('DbtGoToReferences', dbt.navigation.go_to_references, {
+    create_dbt_user_command('DbtGoToReferences', navigation.go_to_references, {
       desc = {
         'Open location list with references of current model. If closed, can be reopened with `:lopen`.',
       },
@@ -69,7 +71,7 @@ vim.api.nvim_create_autocmd({ 'FileType' }, {
 
     -- dbt show command
     create_dbt_user_command('DbtShow', function(opts)
-      dbt.executor.dbt_show(0, opts.line1, opts.line2)
+      executor.dbt_show(0, opts.line1, opts.line2)
     end, {
       nargs = '?',
       range = '%',
@@ -78,7 +80,7 @@ vim.api.nvim_create_autocmd({ 'FileType' }, {
 
     -- dbt generate source yaml
     create_dbt_user_command('DbtGenerateModelYaml', function(opts)
-      dbt.executor.generate_model_yaml(opts.fargs[1])
+      executor.generate_model_yaml(opts.fargs[1])
     end, {
       nargs = '?',
       desc = { 'Generate model yaml. Requires `dbt-codegen` library' },
