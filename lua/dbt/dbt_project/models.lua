@@ -1,7 +1,8 @@
 local Path = require('plenary.path')
 
 -- TODO: Add functions to find everything (source, models, yamls, macros...). Maybe a class
--- is not needed, and it would be best to have a collection of project parsing functions
+-- is not needed, and it would be best to have a collection of functions that get whatever is
+-- needed from the project directory
 
 --- @class Models
 local models = {}

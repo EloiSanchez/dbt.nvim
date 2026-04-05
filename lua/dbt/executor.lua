@@ -1,7 +1,6 @@
-local classes = require('dbt.classes')
-local dbtCommand = classes.dbtCommand
+local dbtCommand = require('dbt.dbt_project.dbt_command')
 local Display = require('dbt.display')
-local Models = require('dbt.models')
+local Models = require('dbt.dbt_project.models')
 
 local display = Display.get_instance()
 

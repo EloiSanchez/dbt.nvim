@@ -1,4 +1,4 @@
-local models = require('dbt.models')
+local models = require('dbt.dbt_project.models')
 local utils = {}
 
 utils.get_dbt_augroup = function()

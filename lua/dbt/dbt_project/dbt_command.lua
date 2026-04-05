@@ -1,18 +1,5 @@
 local Path = require('plenary.path')
 
---- Types
-
---- @alias result table<string, any>
---- @alias bufferSpec table<string, any>
-
---- Classes
-
---- @class dbtArgs
---- @field selector? string
---- @field profile? string
---- @field extra_args? table<string, string>
---- @field flags? string[]
-
 --- @class dbtCommand
 --- @field command string
 --- @field args dbtArgs
@@ -109,6 +96,4 @@ dbtCommand.execute = function(self, callback)
   end
 end
 
-return {
-  dbtCommand = dbtCommand,
-}
+return dbtCommand
