@@ -1,12 +1,7 @@
 name: Auto-generate docs
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  - push
 
 jobs:
   # lint:
