@@ -1,5 +1,3 @@
-local Path = require('plenary.path')
-
 -- TODO: Add functions to find everything (source, models, yamls, macros...). Maybe a class
 -- is not needed, and it would be best to have a collection of functions that get whatever is
 -- needed from the project directory
@@ -55,7 +53,7 @@ end
 --- @param path string
 --- @return string
 models.extract_base_name = function(path)
-  local buf_path = Path:new(path)
+  local buf_path = require('plenary.path'):new(path)
   local buf_splitted = buf_path:_split(buf_path._sep)
   return string.match(buf_splitted[#buf_splitted], '(.*)%psql')
 end
@@ -70,7 +68,7 @@ models.find_references = function(path)
 
   -- Iterate over sql files found in models/
   for _, filename in ipairs(models.model_files({ search_pattern = '.*%.sql' })) do
-    for line_number, line in ipairs(Path:new(filename):readlines()) do
+    for line_number, line in ipairs(require('plenary.path'):new(filename):readlines()) do
       local match = string.match(line, '.*{{.*ref.*%(.*[\'"]' .. name_to_match .. '[\'"].*%).*}}.*')
       if match then
         table.insert(entries, {
