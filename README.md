@@ -1,13 +1,13 @@
 # `dbt.nvim`
 
-> [!INFO]
+> [!NOTE]
 > I started this project as a learning process for neovim and lua. At my job, I often have to use dbt and I had some ideas on how I wanted some features to be integrated.
 >
 > May be rough around the edges, since it has not been tested extensively
 >
 > Comments, issues, (constructive) criticism are welcome!
 
-> [!INFO]
+> [!NOTE]
 > Dbt commands require `dbt-core>=1.9.0`, since the `--quiet` option that is used when interacting with dbt produces no output in previous versions.
 
 [dbt](https://www.getdbt.com/) is a pretty common tool for Data Engineers / Analytics Engineers working in the transformation section of the data pipeline. It is a code-first tool with lots of possible integrations with editors (see [VSCode Extension](https://marketplace.visualstudio.com/items?itemName=dbtLabsInc.dbt&ssr=false#overview)), but there does not seem to be much for Neovim users. Therefore, this seems as good as any other place to start a learning project for myself.
