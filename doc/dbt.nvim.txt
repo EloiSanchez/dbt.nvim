@@ -76,38 +76,46 @@ name. Therefore, if current buffer is `./models/silver/employees.sql` then:
 is translated to
 
 >bash
-    :DbtBuild emplyees+
+    :DbtBuild employees+
 <
 
 
-:DBTBUILD [DBT_MODEL_SELECTION]
-
-Executes `dbt build`
+                                                        *dbt.nvim-:DbtBuild*
 
 
-:DBTRUN [DBT_MODEL_SELECTION]
-
-Executes `dbt run`
+:DbtBuild [dbt_model_selection]        Executes `dbt build`
 
 
-:DBTCOMPILE [DBT_MODEL_SELECTION]
-
-Executes `dbt compile`
+                                                          *dbt.nvim-:DbtRun*
 
 
-:DBTSEED [DBT_MODEL_SELECTION]
-
-Executes `dbt seed`
+:DbtRun [dbt_model_selection]          Executes `dbt run`
 
 
-:DBTTEST [DBT_MODEL_SELECTION]
-
-Executes `dbt test`
+                                                      *dbt.nvim-:DbtCompile*
 
 
-:DBTOPENTERM
+:DbtCompile [dbt_model_selection]      Executes `dbt compile`
 
-Opens docked window showing past executions of |dbt.nvim-dbt-commands|.
+
+                                                         *dbt.nvim-:DbtSeed*
+
+
+:DbtSeed [dbt_model_selection]         Executes `dbt seed`
+
+
+                                                         *dbt.nvim-:DbtTest*
+
+
+:DbtTest [dbt_model_selection]         Executes `dbt test`
+
+
+                                                     *dbt.nvim-:DbtOpenTerm*
+
+
+:DbtOpenTerm                           Opens docked window showing past executions of |dbt.nvim-dbt-commands|.
+
+
 
 
 DBT SHOW                                             *dbt.nvim-usage-dbt-show*
