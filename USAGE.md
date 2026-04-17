@@ -15,7 +15,9 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim):
 }
 ```
 
-# dbt commands
+# Usage
+
+## dbt commands
 
 dbt commands can be executed from the neovim command line with the following syntax (example with `dbt build`)
 
@@ -29,7 +31,7 @@ for instance
 :DbtBuild orders+,@customers
 ```
 
-will open a docked window where the results of the dbt execution are shown. This window can be closed by pressing `q` and can be reopened without losing information about past executions with [:DbtOpenTerm](#:dbtopenterm).
+will open a docked window where the results of the dbt execution are shown. This window can be closed by pressing `q` and can be reopened without losing information about past executions with `:DbtOpenTerm`.
 
 | Available dbt commands      |
 | --------------------------- |
@@ -53,56 +55,56 @@ is translated to
 :DbtBuild emplyees+
 ```
 
-## :DbtBuild [dbt_model_selection]
+#### `:DbtBuild [dbt_model_selection]`
 
 Executes `dbt build`
 
-## :DbtRun [dbt_model_selection]
+#### `:DbtRun [dbt_model_selection]`
 
 Executes `dbt run`
 
-## :DbtCompile [dbt_model_selection]
+#### `:DbtCompile [dbt_model_selection]`
 
 Executes `dbt compile`
 
-## :DbtSeed [dbt_model_selection]
+#### `:DbtSeed [dbt_model_selection]`
 
 Executes `dbt seed`
 
-## :DbtTest [dbt_model_selection]
+#### `:DbtTest [dbt_model_selection]`
 
 Executes `dbt test`
 
-## :DbtOpenTerm
+#### `:DbtOpenTerm`
 
 Opens docked window showing past executions of [dbt commands](#:dbt-commands).
 
-# dbt show
+## dbt show
 
-## :{Visual}DbtShow
+#### `:{Visual}DbtShow`
 
 Executes the _current_ buffer code against the database and show the results.
 
 If used in visual mode, only the selected range is executed.
 
-The automatically opened docked window can be closed by pressing `q` in it and can be reopened later without losing the previous results with [:DbtOpenShowResults](#:dbtopenshowresults).
+The automatically opened docked window can be closed by pressing `q` in it and can be reopened later without losing the previous results with `:DbtOpenShowResults`.
 
-## :DbtOpenShowResults
+#### `:DbtOpenShowResults`
 
-Opens docked window showing past executions of [:DbtShow](#:{visual}dbtshow).
+Opens docked window showing past executions of [:DbtShow](#:dbt-show).
 
-# Navigation
+## Navigation
 
-## :DbtGoToDefinition
+#### `:DbtGoToDefinition`
 
 Jump to the model under the cursor referenced by a `{{ ref(...) }}` snippet.
 
-## :DbtGoToReferences
+#### `:DbtGoToReferences`
 
 Opens quickfix list of references to model opened in current buffer.
 
-# Code generation
+## Code generation
 
-## :DbtGenerateModelYaml [yaml_save_path]
+#### `:DbtGenerateModelYaml [yaml_save_path]`
 
 Open a buffer with yaml definition of current model. If `yaml_save_path` is passed, the buffer will be created on the specified path, ready to be written. Otherwise, the generated yaml is opened on a scratch buffer, where it can be yanked and closed (or `:h CTRL-O` to jump to previous location).
