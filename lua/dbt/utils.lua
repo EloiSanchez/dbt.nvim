@@ -1,4 +1,14 @@
+local models = require('dbt.dbt_project.models')
 local utils = {}
+
+utils.get_dbt_augroup = function()
+  if not utils._dbt_augroup then
+    utils._dbt_augroup = vim.api.nvim_create_augroup('DbtAuGroup', { clear = true })
+  end
+  return utils._dbt_augroup
+end
+
+utils.completion = models.completion
 
 -- TODO: This needs to be moved somewhere so its loaded once when plugin is loaded lazily
 -- and available in the whole module without requiring re-execution
