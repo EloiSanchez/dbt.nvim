@@ -6,21 +6,11 @@ Table of Contents                                 *dbt.nvim-table-of-contents*
 
 1. dbt.nvim                                                |dbt.nvim-dbt.nvim|
 2. Installation                                        |dbt.nvim-installation|
-3. dbt commands                                        |dbt.nvim-dbt-commands|
-  - :DbtBuild [dbt_model_selection]|dbt.nvim-dbt-commands-:dbtbuild-[dbt_model_selection]|
-  - :DbtRun [dbt_model_selection]|dbt.nvim-dbt-commands-:dbtrun-[dbt_model_selection]|
-  - :DbtCompile [dbt_model_selection]|dbt.nvim-dbt-commands-:dbtcompile-[dbt_model_selection]|
-  - :DbtSeed [dbt_model_selection]|dbt.nvim-dbt-commands-:dbtseed-[dbt_model_selection]|
-  - :DbtTest [dbt_model_selection]|dbt.nvim-dbt-commands-:dbttest-[dbt_model_selection]|
-  - :DbtOpenTerm                          |dbt.nvim-dbt-commands-:dbtopenterm|
-4. dbt show                                                |dbt.nvim-dbt-show|
-  - :{Visual}DbtShow                      |dbt.nvim-dbt-show-:{visual}dbtshow|
-  - :DbtOpenShowResults                |dbt.nvim-dbt-show-:dbtopenshowresults|
-5. Navigation                                            |dbt.nvim-navigation|
-  - :DbtGoToDefinition                |dbt.nvim-navigation-:dbtgotodefinition|
-  - :DbtGoToReferences                |dbt.nvim-navigation-:dbtgotoreferences|
-6. Code generation                                  |dbt.nvim-code-generation|
-  - :DbtGenerateModelYaml [yaml_save_path]|dbt.nvim-code-generation-:dbtgeneratemodelyaml-[yaml_save_path]|
+3. Usage                                                      |dbt.nvim-usage|
+  - dbt commands                                 |dbt.nvim-usage-dbt-commands|
+  - dbt show                                         |dbt.nvim-usage-dbt-show|
+  - Navigation                                     |dbt.nvim-usage-navigation|
+  - Code generation                           |dbt.nvim-usage-code-generation|
 
 ==============================================================================
 1. dbt.nvim                                                *dbt.nvim-dbt.nvim*
@@ -44,7 +34,10 @@ Using lazy.nvim <https://github.com/folke/lazy.nvim>:
 
 
 ==============================================================================
-3. dbt commands                                        *dbt.nvim-dbt-commands*
+3. Usage                                                      *dbt.nvim-usage*
+
+
+DBT COMMANDS                                     *dbt.nvim-usage-dbt-commands*
 
 dbt commands can be executed from the neovim command line with the following
 syntax (example with `dbt build`)
@@ -61,7 +54,7 @@ for instance
 
 will open a docked window where the results of the dbt execution are shown.
 This window can be closed by pressing `q` and can be reopened without losing
-information about past executions with |dbt.nvim-:dbtopenterm|.
+information about past executions with `:DbtOpenTerm`.
 
   Available dbt commands
   ------------------------
@@ -87,41 +80,40 @@ is translated to
 <
 
 
-:DBTBUILD [DBT_MODEL_SELECTION]*dbt.nvim-dbt-commands-:dbtbuild-[dbt_model_selection]*
+:DBTBUILD [DBT_MODEL_SELECTION]
 
 Executes `dbt build`
 
 
-:DBTRUN [DBT_MODEL_SELECTION]*dbt.nvim-dbt-commands-:dbtrun-[dbt_model_selection]*
+:DBTRUN [DBT_MODEL_SELECTION]
 
 Executes `dbt run`
 
 
-:DBTCOMPILE [DBT_MODEL_SELECTION]*dbt.nvim-dbt-commands-:dbtcompile-[dbt_model_selection]*
+:DBTCOMPILE [DBT_MODEL_SELECTION]
 
 Executes `dbt compile`
 
 
-:DBTSEED [DBT_MODEL_SELECTION]*dbt.nvim-dbt-commands-:dbtseed-[dbt_model_selection]*
+:DBTSEED [DBT_MODEL_SELECTION]
 
 Executes `dbt seed`
 
 
-:DBTTEST [DBT_MODEL_SELECTION]*dbt.nvim-dbt-commands-:dbttest-[dbt_model_selection]*
+:DBTTEST [DBT_MODEL_SELECTION]
 
 Executes `dbt test`
 
 
-:DBTOPENTERM                              *dbt.nvim-dbt-commands-:dbtopenterm*
+:DBTOPENTERM
 
 Opens docked window showing past executions of |dbt.nvim-dbt-commands|.
 
 
-==============================================================================
-4. dbt show                                                *dbt.nvim-dbt-show*
+DBT SHOW                                             *dbt.nvim-usage-dbt-show*
 
 
-:{VISUAL}DBTSHOW                          *dbt.nvim-dbt-show-:{visual}dbtshow*
+:{VISUAL}DBTSHOW
 
 Executes the _current_ buffer code against the database and show the results.
 
@@ -129,33 +121,31 @@ If used in visual mode, only the selected range is executed.
 
 The automatically opened docked window can be closed by pressing `q` in it and
 can be reopened later without losing the previous results with
-|dbt.nvim-:dbtopenshowresults|.
+`:DbtOpenShowResults`.
 
 
-:DBTOPENSHOWRESULTS                    *dbt.nvim-dbt-show-:dbtopenshowresults*
+:DBTOPENSHOWRESULTS
 
 Opens docked window showing past executions of |dbt.nvim-:dbtshow|.
 
 
-==============================================================================
-5. Navigation                                            *dbt.nvim-navigation*
+NAVIGATION                                         *dbt.nvim-usage-navigation*
 
 
-:DBTGOTODEFINITION                    *dbt.nvim-navigation-:dbtgotodefinition*
+:DBTGOTODEFINITION
 
 Jump to the model under the cursor referenced by a `{{ ref(...) }}` snippet.
 
 
-:DBTGOTOREFERENCES                    *dbt.nvim-navigation-:dbtgotoreferences*
+:DBTGOTOREFERENCES
 
 Opens quickfix list of references to model opened in current buffer.
 
 
-==============================================================================
-6. Code generation                                  *dbt.nvim-code-generation*
+CODE GENERATION                               *dbt.nvim-usage-code-generation*
 
 
-:DBTGENERATEMODELYAML [YAML_SAVE_PATH]*dbt.nvim-code-generation-:dbtgeneratemodelyaml-[yaml_save_path]*
+:DBTGENERATEMODELYAML [YAML_SAVE_PATH]
 
 Open a buffer with yaml definition of current model. If `yaml_save_path` is
 passed, the buffer will be created on the specified path, ready to be written.
