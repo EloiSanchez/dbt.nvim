@@ -55,33 +55,33 @@ is translated to
 :DbtBuild employees+
 ```
 
-:DbtBuild [dbt_model_selection]
+### dbt build
 
-: Executes `dbt build`
+`:DbtBuild [dbt_model_selection]`: Executes `dbt build`
 
-:DbtRun [dbt_model_selection]
+### dbt run
 
-: Executes `dbt run`
+`:DbtRun [dbt_model_selection]`: Executes `dbt run`
 
-:DbtCompile [dbt_model_selection]
+### dbt compile
 
-: Executes `dbt compile`
+`:DbtCompile [dbt_model_selection]`: Executes `dbt compile`
 
-:DbtSeed [dbt_model_selection]
+### dbt seed
 
-: Executes `dbt seed`
+`:DbtSeed [dbt_model_selection]`: Executes `dbt seed`
 
-:DbtTest [dbt_model_selection]
+### dbt test
 
-: Executes `dbt test`
+`:DbtTest [dbt_model_selection]`: Executes `dbt test`
 
-:DbtOpenTerm
+### Open terminal
 
-: Opens docked window showing past executions of [dbt commands](#:dbt-commands).
+`:DbtOpenTerm`: Opens docked window showing past executions of [dbt commands](#:dbt-commands)
 
 ## dbt show
 
-#### `:{Visual}DbtShow`
+`:{Visual}DbtShow`
 
 Executes the _current_ buffer code against the database and show the results.
 
@@ -89,22 +89,16 @@ If used in visual mode, only the selected range is executed.
 
 The automatically opened docked window can be closed by pressing `q` in it and can be reopened later without losing the previous results with `:DbtOpenShowResults`.
 
-#### `:DbtOpenShowResults`
+`:DbtOpenShowResults`
 
 Opens docked window showing past executions of [:DbtShow](#:dbt-show).
 
 ## Navigation
 
-#### `:DbtGoToDefinition`
+`:DbtGoToDefinition`: Jump to the model under the cursor referenced by a `{{ ref(...) }}` snippet.
 
-Jump to the model under the cursor referenced by a `{{ ref(...) }}` snippet.
-
-#### `:DbtGoToReferences`
-
-Opens quickfix list of references to model opened in current buffer.
+`:DbtGoToReferences`: Opens quickfix list of references to model opened in current buffer.
 
 ## Code generation
 
-#### `:DbtGenerateModelYaml [yaml_save_path]`
-
-Open a buffer with yaml definition of current model. If `yaml_save_path` is passed, the buffer will be created on the specified path, ready to be written. Otherwise, the generated yaml is opened on a scratch buffer, where it can be yanked and closed (or `:h CTRL-O` to jump to previous location).
+`:DbtGenerateModelYaml [yaml_save_path]`: Open a buffer with yaml definition of current model. If `yaml_save_path` is passed, the buffer will be created on the specified path, ready to be written. Otherwise, the generated yaml is opened on a scratch buffer, where it can be yanked and closed (or `:h CTRL-O` to jump to previous location).

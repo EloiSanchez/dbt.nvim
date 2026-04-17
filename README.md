@@ -12,6 +12,10 @@
 
 [dbt](https://www.getdbt.com/) is a pretty common tool for Data Engineers / Analytics Engineers working in the transformation section of the data pipeline. It is a code-first tool with lots of possible integrations with editors (see [VSCode Extension](https://marketplace.visualstudio.com/items?itemName=dbtLabsInc.dbt&ssr=false#overview)), but there does not seem to be much for Neovim users. Therefore, this seems as good as any other place to start a learning project for myself.
 
+## Usage
+
+See [USAGE](https://github.com/EloiSanchez/dbt.nvim/blob/main/USAGE.md).
+
 ## Roadmap
 
 As a usual dbt-core user, this is a non-extensive list of features I would like to see in a dbt plugin.
