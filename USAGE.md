@@ -52,32 +52,32 @@ The special character `%` will be replaced by the current's buffer model name. T
 is translated to
 
 ```bash
-:DbtBuild emplyees+
+:DbtBuild employees+
 ```
 
-#### `:DbtBuild [dbt_model_selection]`
+:DbtBuild [dbt_model_selection]
 
-Executes `dbt build`
+: Executes `dbt build`
 
-#### `:DbtRun [dbt_model_selection]`
+:DbtRun [dbt_model_selection]
 
-Executes `dbt run`
+: Executes `dbt run`
 
-#### `:DbtCompile [dbt_model_selection]`
+:DbtCompile [dbt_model_selection]
 
-Executes `dbt compile`
+: Executes `dbt compile`
 
-#### `:DbtSeed [dbt_model_selection]`
+:DbtSeed [dbt_model_selection]
 
-Executes `dbt seed`
+: Executes `dbt seed`
 
-#### `:DbtTest [dbt_model_selection]`
+:DbtTest [dbt_model_selection]
 
-Executes `dbt test`
+: Executes `dbt test`
 
-#### `:DbtOpenTerm`
+:DbtOpenTerm
 
-Opens docked window showing past executions of [dbt commands](#:dbt-commands).
+: Opens docked window showing past executions of [dbt commands](#:dbt-commands).
 
 ## dbt show
 
