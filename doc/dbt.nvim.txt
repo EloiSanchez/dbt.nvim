@@ -1,59 +1,166 @@
-*nvim-plugin-template.nvim.txt*  For NVIM v0.8.0 Last change: 2025 February 12
+*dbt.nvim.txt* Utilities for working with dbt-core projects from within neovim
+                                 For NVIM v0.8.0    Last change: 2026 April 17
 
 ==============================================================================
-Table of Contents                *nvim-plugin-template.nvim-table-of-contents*
+Table of Contents                                 *dbt.nvim-table-of-contents*
 
-1. nvim-plugin-template       |nvim-plugin-template.nvim-nvim-plugin-template|
-  - Usage               |nvim-plugin-template.nvim-nvim-plugin-template-usage|
-  - Format             |nvim-plugin-template.nvim-nvim-plugin-template-format|
-  - Test                 |nvim-plugin-template.nvim-nvim-plugin-template-test|
-  - CI                     |nvim-plugin-template.nvim-nvim-plugin-template-ci|
-  - More                 |nvim-plugin-template.nvim-nvim-plugin-template-more|
-  - License MIT   |nvim-plugin-template.nvim-nvim-plugin-template-license-mit|
+1. dbt.nvim                                                |dbt.nvim-dbt.nvim|
+2. Installation                                        |dbt.nvim-installation|
+3. dbt commands                                        |dbt.nvim-dbt-commands|
+  - :DbtBuild [dbt_model_selection]|dbt.nvim-dbt-commands-:dbtbuild-[dbt_model_selection]|
+  - :DbtRun [dbt_model_selection]|dbt.nvim-dbt-commands-:dbtrun-[dbt_model_selection]|
+  - :DbtCompile [dbt_model_selection]|dbt.nvim-dbt-commands-:dbtcompile-[dbt_model_selection]|
+  - :DbtSeed [dbt_model_selection]|dbt.nvim-dbt-commands-:dbtseed-[dbt_model_selection]|
+  - :DbtTest [dbt_model_selection]|dbt.nvim-dbt-commands-:dbttest-[dbt_model_selection]|
+  - :DbtOpenTerm                          |dbt.nvim-dbt-commands-:dbtopenterm|
+4. dbt show                                                |dbt.nvim-dbt-show|
+  - :{Visual}DbtShow                      |dbt.nvim-dbt-show-:{visual}dbtshow|
+  - :DbtOpenShowResults                |dbt.nvim-dbt-show-:dbtopenshowresults|
+5. Navigation                                            |dbt.nvim-navigation|
+  - :DbtGoToDefinition                |dbt.nvim-navigation-:dbtgotodefinition|
+  - :DbtGoToReferences                |dbt.nvim-navigation-:dbtgotoreferences|
+6. Code generation                                  |dbt.nvim-code-generation|
+  - :DbtGenerateModelYaml [yaml_save_path]|dbt.nvim-code-generation-:dbtgeneratemodelyaml-[yaml_save_path]|
 
 ==============================================================================
-1. nvim-plugin-template       *nvim-plugin-template.nvim-nvim-plugin-template*
+1. dbt.nvim                                                *dbt.nvim-dbt.nvim*
 
-Neovim plugin template; includes automatic documentation generation from
-README, integration tests with Busted, and linting with Stylua
-
-
-USAGE                   *nvim-plugin-template.nvim-nvim-plugin-template-usage*
-
-1. Click `use this template` button generate a repo on your github.
-2. Clone your plugin repo. Open terminal then cd plugin directory.
-3. Run `python3 rename.py your-plugin-name`. This will replace all `nvim-plugin-template` to your `plugin-name`.
-Then it will prompt you input `y` or `n` to remove example codes in `init.lua` and
-`test/plugin_spec.lua`. If you are familiar this repo just input `y`. If you are looking at this template for the first time I suggest you inspect the contents. After this step `rename.py` will also auto-remove.
-
-Now you have a clean plugin environment. Enjoy!
+Simple utilities to facilitate working in dbt-core projects from within neovim.
 
 
-FORMAT                 *nvim-plugin-template.nvim-nvim-plugin-template-format*
+==============================================================================
+2. Installation                                        *dbt.nvim-installation*
 
-The CI uses `stylua` to format the code; customize the formatting by editing
-`.stylua.toml`.
+Using lazy.nvim <https://github.com/folke/lazy.nvim>:
 
-
-TEST                     *nvim-plugin-template.nvim-nvim-plugin-template-test*
-
-See Running tests locally
-<https://github.com/nvim-neorocks/nvim-busted-action?tab=readme-ov-file#running-tests-locally>
-
-
-CI                         *nvim-plugin-template.nvim-nvim-plugin-template-ci*
-
-- Auto generates doc from README.
-- Runs the nvim-busted-action <https://github.com/nvim-neorocks/nvim-busted-action> for test.
-- Lints with `stylua`.
+>lua
+    {
+      "EloiSanchez/dbt.nvim",
+      dependencies = {
+        "nvim-lua/plenary.nvim",
+      },
+    }
+<
 
 
-MORE                     *nvim-plugin-template.nvim-nvim-plugin-template-more*
+==============================================================================
+3. dbt commands                                        *dbt.nvim-dbt-commands*
 
-To see this template in action, take a look at my other plugins.
+dbt commands can be executed from the neovim command line with the following
+syntax (example with `dbt build`)
+
+>bash
+    :DbtBuild [[@|+]dbt_model_selection][*]]
+<
+
+for instance
+
+>bash
+    :DbtBuild orders+,@customers
+<
+
+will open a docked window where the results of the dbt execution are shown.
+This window can be closed by pressing `q` and can be reopened without losing
+information about past executions with |dbt.nvim-:dbtopenterm|.
+
+  Available dbt commands
+  ------------------------
+  dbt build
+  dbt run
+  dbt compile
+  dbt seed
+  dbt test
+
+USING % FOR CURRENT BUFFER ~
+
+The special character `%` will be replaced by the current’s buffer model
+name. Therefore, if current buffer is `./models/silver/employees.sql` then:
+
+>bash
+    :DbtBuild %+
+<
+
+is translated to
+
+>bash
+    :DbtBuild emplyees+
+<
 
 
-LICENSE MIT       *nvim-plugin-template.nvim-nvim-plugin-template-license-mit*
+:DBTBUILD [DBT_MODEL_SELECTION]*dbt.nvim-dbt-commands-:dbtbuild-[dbt_model_selection]*
+
+Executes `dbt build`
+
+
+:DBTRUN [DBT_MODEL_SELECTION]*dbt.nvim-dbt-commands-:dbtrun-[dbt_model_selection]*
+
+Executes `dbt run`
+
+
+:DBTCOMPILE [DBT_MODEL_SELECTION]*dbt.nvim-dbt-commands-:dbtcompile-[dbt_model_selection]*
+
+Executes `dbt compile`
+
+
+:DBTSEED [DBT_MODEL_SELECTION]*dbt.nvim-dbt-commands-:dbtseed-[dbt_model_selection]*
+
+Executes `dbt seed`
+
+
+:DBTTEST [DBT_MODEL_SELECTION]*dbt.nvim-dbt-commands-:dbttest-[dbt_model_selection]*
+
+Executes `dbt test`
+
+
+:DBTOPENTERM                              *dbt.nvim-dbt-commands-:dbtopenterm*
+
+Opens docked window showing past executions of |dbt.nvim-dbt-commands|.
+
+
+==============================================================================
+4. dbt show                                                *dbt.nvim-dbt-show*
+
+
+:{VISUAL}DBTSHOW                          *dbt.nvim-dbt-show-:{visual}dbtshow*
+
+Executes the _current_ buffer code against the database and show the results.
+
+If used in visual mode, only the selected range is executed.
+
+The automatically opened docked window can be closed by pressing `q` in it and
+can be reopened later without losing the previous results with
+|dbt.nvim-:dbtopenshowresults|.
+
+
+:DBTOPENSHOWRESULTS                    *dbt.nvim-dbt-show-:dbtopenshowresults*
+
+Opens docked window showing past executions of |dbt.nvim-:dbtshow|.
+
+
+==============================================================================
+5. Navigation                                            *dbt.nvim-navigation*
+
+
+:DBTGOTODEFINITION                    *dbt.nvim-navigation-:dbtgotodefinition*
+
+Jump to the model under the cursor referenced by a `{{ ref(...) }}` snippet.
+
+
+:DBTGOTOREFERENCES                    *dbt.nvim-navigation-:dbtgotoreferences*
+
+Opens quickfix list of references to model opened in current buffer.
+
+
+==============================================================================
+6. Code generation                                  *dbt.nvim-code-generation*
+
+
+:DBTGENERATEMODELYAML [YAML_SAVE_PATH]*dbt.nvim-code-generation-:dbtgeneratemodelyaml-[yaml_save_path]*
+
+Open a buffer with yaml definition of current model. If `yaml_save_path` is
+passed, the buffer will be created on the specified path, ready to be written.
+Otherwise, the generated yaml is opened on a scratch buffer, where it can be
+yanked and closed (or |CTRL-O| to jump to previous location).
 
 Generated by panvimdoc <https://github.com/kdheepak/panvimdoc>
 
